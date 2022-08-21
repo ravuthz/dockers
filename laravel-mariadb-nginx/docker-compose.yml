@@ -1,0 +1,55 @@
+version: "3.7"
+services:
+  proxy:
+    # image: nginx:1.21.6-alpine
+    image: nginx:1.23.1-alpine
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./backend/app/:/var/www/
+      - ./proxy/:/etc/nginx/conf.d
+    networks:
+      - laravel_net
+  backend:
+    build:
+      args:
+        user: ravuthz
+        uid: 1000
+      context: backend
+      dockerfile: Dockerfile
+      # target: development
+    environment:
+      DB_HOST: database
+    working_dir: /var/www/
+    depends_on:
+      - database
+    volumes:
+      - ./backend/app/:/var/www/
+      - ./backend/php.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - laravel_net
+  database:
+    image: mariadb
+    restart: always
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent" ]
+      interval: 3s
+      retries: 5
+      start_period: 30s
+    volumes:
+      - ./database/.mysql:/var/lib/mysql
+    environment:
+      MARIADB_DATABASE: ${DB_DATABASE}
+      MARIADB_USER: ${DB_USERNAME}
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - 3306:3306
+    networks:
+      - laravel_net
+  
+networks:
+  laravel_net:
+    name: laravel_net
+    driver: bridge
