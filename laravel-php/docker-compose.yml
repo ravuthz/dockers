@@ -1,0 +1,39 @@
+services:
+  php8_3:
+    build:
+      args:
+        PHP_VERSION: 8.3
+        NODE_VERSION: 20.x
+      context: .
+      dockerfile: Dockerfile
+    image: "ravuthz/laravel-php:8.3"
+    volumes:
+      - ./:/var/www/html/
+    ports:
+      - "9001:9000"
+
+  php8_3_fpm:
+    build:
+      args:
+        PHP_VERSION: 8.3
+        NODE_VERSION: 20.x
+      context: .
+      dockerfile: Dockerfile.fpm
+    image: "ravuthz/laravel-php:8.3-fpm"
+    volumes:
+      - ./:/var/www/html/
+    ports:
+      - "9002:9000"
+
+  php8_3_alpine_frankenphp:
+    build:
+      args:
+        PHP_VERSION: 8.3
+        NODE_VERSION: 20.x
+      context: .
+      dockerfile: Dockerfile.alpine
+    image: "ravuthz/laravel-php:8.3-alpine"
+    volumes:
+      - ./:/var/www/html/
+    ports:
+      - "9003:9000"

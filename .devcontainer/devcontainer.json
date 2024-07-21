@@ -1,0 +1,20 @@
+{
+    "name": "Laravel Frankend PHP",
+    "remoteUser": "root",
+    "service": "api",
+    "workspaceFolder": "/var/www/html",
+    "shutdownAction": "stopCompose",
+    "dockerComposeFile": "docker-compose.yaml",
+    "customizations": {
+        "prompt": "Frankend PHP",
+        "settings": {
+            "terminal.integrated.shell.linux": "/bin/zsh",
+            "php.validate.executablePath": "/usr/local/bin/php",
+            "editor.tabSize": 4
+        },
+        "extensions": [
+            "bmewburn.vscode-intelephense-client",
+            "xdebug.php-debug"
+        ]
+    }
+}

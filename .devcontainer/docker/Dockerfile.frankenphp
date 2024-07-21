@@ -1,0 +1,48 @@
+FROM dunglas/frankenphp
+
+# Disable https in frankenphp
+# ENV SERVER_NAME="http://"
+
+ENV COMPOSER_ALLOW_SUPERUSER=1
+ENV COMPOSER_HOME=/composer
+ENV PATH=$PATH:/composer/vendor/bin
+
+RUN echo "UTC" > /etc/timezone
+
+# ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+
+RUN apt-get update \
+  && apt-get install -y git unzip bash zlib1g-dev libzip-dev libpq-dev
+#   && docker-php-ext-install zip pcntl pdo_mysql pdo_pgsql
+
+RUN apt-get install -y libfreetype6-dev libjpeg62-turbo-dev libpng-dev && \
+  docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ && \
+  docker-php-ext-install gd
+
+RUN rm -rf /var/lib/apt/lists/*
+
+RUN install-php-extensions gd zip pcntl sockets pdo_mysql pdo_pgsql
+
+# ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
+
+# RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+# RUN php composer-setup.php
+# RUN php -r "unlink('composer-setup.php');"
+# RUN mv composer.phar /usr/local/bin/composer
+
+RUN curl -fsSL "https://deb.nodesource.com/setup_20.x" | bash -
+RUN apt-get install -y nodejs
+RUN npm install npm@latest -g
+RUN npm install yarn -g
+
+WORKDIR /var/www/html
+
+COPY . .
+
+RUN chown -R www-data:www-data /var/www/html
+
+# CMD php artisan serve --host=0.0.0.0 --port=80
+# CMD ["frankenphp", "run", "--config", "/etc/caddy/Caddyfile"]
+# ENTRYPOINT ["caddy", "run", "--config", "/etc/caddy/Caddyfile"]
+# HEALTHCHECK CMD curl --fail http://localhost:80 || exit 1

@@ -1,0 +1,98 @@
+services:
+  api:
+    build:
+      args:
+        WWWGROUP: 1000
+      context: "../"
+      dockerfile: .devcontainer/docker/Dockerfile.alpine-php
+      # dockerfile: .devcontainer/docker/Dockerfile.frankenphp
+    # restart: unless-stopped
+    ports:
+      - 9000:9000
+      - 8000:8000
+    # entrypoint: sleep infinity
+    command:
+      [
+        "/bin/sh",
+        "-c",
+        "/usr/local/bin/script-install.sh && /usr/local/bin/script-start.sh",
+      ]
+    volumes:
+      - ..:/var/www/html:cached
+      - ../vendor:/var/www/html/vendor
+      - ./docker/php/info.php:/var/www/html/public/info.php
+      - ./script-install.sh:/usr/local/bin/script-install.sh:rw
+      - ./script-start.sh:/usr/local/bin/script-start.sh:rw
+    networks:
+      - laravel-net
+    depends_on:
+      - redis
+      - db_pgsql
+    environment:
+      - REDIS_CLIENT=redis
+      - DB_HOST=db_pgsql
+      - OCTANE_SERVER=frankenphp
+    healthcheck:
+      test: curl --fail http://localhost:9000/ || exit 1
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 30s
+
+  redis:
+    image: redis:alpine
+    # restart: unless-stopped
+    ports:
+      - 6379:6379
+    networks:
+      - laravel-net
+    healthcheck:
+      test: redis-cli ping
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  db_pgsql:
+    image: postgres:alpine
+    # restart: unless-stopped
+    volumes:
+      - pgsql-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: laravel-api
+      POSTGRES_USER: adminz
+      POSTGRES_PASSWORD: 123123
+    networks:
+      - laravel-net
+    healthcheck:
+      # test: pg_isready -U adminz -d laravel-api
+      test:
+        ["CMD-SHELL", "psql -U adminz -d laravel-api -c 'SELECT 1' || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  adminer:
+    image: adminer
+    # restart: always
+    ports:
+      - 9090:8080
+    networks:
+      - laravel-net
+    depends_on:
+      - db_pgsql
+      # db_pgsql:
+      #   condition: service_healthy
+    healthcheck:
+      # test: ["CMD", "curl -f http://localhost:9090 || exit 1"]
+      test:
+        ["CMD-SHELL", "netstat -ltn | grep -c ':8080' > /dev/null || exit 1"]
+      interval: 10s
+      timeout: 1s
+      retries: 1
+
+volumes:
+  pgsql-data:
+
+networks:
+  laravel-net:
+    driver: bridge

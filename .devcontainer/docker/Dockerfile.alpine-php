@@ -1,0 +1,54 @@
+# FROM alpine:3.14 AS base
+# ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+
+FROM php:8.3-alpine
+
+ENV COMPOSER_ALLOW_SUPERUSER=1
+ENV COMPOSER_HOME=/composer
+ENV PATH=$PATH:/composer/vendor/bin
+
+RUN echo "UTC" > /etc/timezone
+
+ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+# COPY --from=base /usr/local/bin/install-php-extensions /usr/local/bin/install-php-extensions
+# platform "linux/amd64"
+# COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
+COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
+
+# RUN apk add --no-cache libfreetype6-dev libjpeg62-turbo-dev libpng-dev && \
+#    docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ && \
+#    docker-php-ext-install gd
+
+RUN apk add --update --no-cache freetype-dev libjpeg-turbo-dev libpng-dev \
+    bash shadow sudo git \
+    && docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ \
+    && docker-php-ext-install gd
+
+RUN install-php-extensions gd zip pcntl sockets pdo_mysql pdo_pgsql
+
+RUN chown -R www-data:www-data /var/www/html
+
+# ARG WWWGROUP
+
+# Add user in alpine to sudo
+# RUN addgroup -g ${WWWGROUP} adminz && \
+#     adduser -u 1337 -G adminz -s /bin/bash -D adminz && \
+#     echo "adminz ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers && \
+#     adduser adminz wheel
+
+# Add user in linux
+# RUN useradd -ms /bin/bash --no-user-group -g $WWWGROUP -u 1337 adminz
+# allow devContainer use sudo without password
+# RUN echo adminz ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/adminz \
+#     && chmod 0440 /etc/sudoers.d/adminz
+
+WORKDIR /var/www/html
+
+COPY . .
+
+RUN ls -lah
+
+RUN apk add jq
+
+RUN wget -O/usr/local/bin/frankenphp $(wget -O- https://api.github.com/repos/dunglas/frankenphp/releases/latest | jq '.assets[] | select(.name=="frankenphp-linux-x86_64") | .browser_download_url' -r) \
+    && chmod +x /usr/local/bin/frankenphp

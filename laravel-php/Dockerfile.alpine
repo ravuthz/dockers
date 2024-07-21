@@ -1,0 +1,48 @@
+ARG PHP_VERSION=8.3
+
+FROM --platform=linux/amd64 php:${PHP_VERSION}-alpine
+
+ENV SERVER_NAME="http://"
+
+ENV COMPOSER_ALLOW_SUPERUSER=1
+ENV COMPOSER_HOME=/composer
+ENV PATH=$PATH:/composer/vendor/bin
+
+RUN echo "UTC" > /etc/timezone
+
+RUN apk add --update --no-cache git zip bash sudo shadow
+# RUN apk add --update --no-cache freetype-dev libjpeg-turbo-dev libpng-dev
+# RUN docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/
+# RUN docker-php-ext-install gd pcntl sockets pdo_mysql pdo_pgsql
+
+ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+RUN install-php-extensions gd zip pcntl sockets pdo_sqlite pdo_mysql pdo_pgsql @composer
+
+# platform "linux/amd64"
+# COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
+
+# Installing composer
+# RUN curl -sS https://getcomposer.org/installer -o composer-setup.php
+# RUN php composer-setup.php --install-dir=/usr/local/bin --filename=composer
+# RUN rm -rf composer-setup.php
+
+RUN chown -R www-data:www-data /var/www/html
+
+WORKDIR /var/www/html
+
+COPY . .
+
+RUN ls -lah
+
+RUN apk add jq
+
+# RUN wget -O/usr/local/bin/frankenphp $(wget -O- https://api.github.com/repos/dunglas/frankenphp/releases/latest | jq '.assets[] | select(.name=="frankenphp-linux-x86_64") | .browser_download_url' -r) \
+#     && chmod +x /usr/local/bin/frankenphp
+
+ADD --chmod=0755 "https://github.com/dunglas/frankenphp/releases/download/v1.2.2/frankenphp-linux-x86_64" /usr/local/bin/frankenphp
+
+EXPOSE 9000
+
+# CMD ["frankenphp", "php-server", "--listen", ":9000", "--root", "/var/www/html/public/"]
+
+ENTRYPOINT ["frankenphp", "php-server", "--listen", ":9000", "--root", "/var/www/html/public/"]

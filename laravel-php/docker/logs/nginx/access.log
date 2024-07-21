@@ -1,0 +1,7 @@
+192.168.127.1 - - [03/Jul/2024:07:33:46 +0000] "GET /index.php HTTP/1.1" 404 27 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+192.168.127.1 - - [03/Jul/2024:07:33:48 +0000] "GET /favicon.ico HTTP/1.1" 404 27 "http://localhost:9191/index.php" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+192.168.127.1 - - [03/Jul/2024:07:33:52 +0000] "GET / HTTP/1.1" 403 555 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+192.168.127.1 - - [03/Jul/2024:07:34:06 +0000] "GET /public.index.php HTTP/1.1" 404 27 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+192.168.127.1 - - [03/Jul/2024:07:34:09 +0000] "GET /public/index.php HTTP/1.1" 404 27 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+192.168.127.1 - - [03/Jul/2024:07:34:12 +0000] "GET /public/index.php HTTP/1.1" 404 27 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+192.168.127.1 - - [03/Jul/2024:07:34:15 +0000] "GET /info.php HTTP/1.1" 200 85116 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"

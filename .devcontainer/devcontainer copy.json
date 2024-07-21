@@ -1,0 +1,49 @@
+{
+    "name": "Laravel Frankend PHP",
+    "remoteUser": "root",
+    "workspaceFolder": "/var/www/html",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/var/www/html,type=bind,consistency=cached",
+    "build": {
+        "args": {
+            "SERVER_NAME": "http://"
+        },
+        "context": ".",
+        "dockerfile": "docker/Dockerfile.alpine-php"
+    },
+    "forwardPorts": [
+        9000,
+        8000
+    ],
+    "portsAttributes": {
+        "9000": {
+            "label": "Frankend PHP",
+            "onAutoForward": "openBrowser"
+        },
+        "8000": {
+            "label": "Laravel Serve",
+            "onAutoForward": "openBrowser"
+        },
+        "2019": {
+            "label": "Caddy Admin",
+            "onAutoForward": "notify"
+        },
+        "3019": {
+            "label": "Caddy Admin",
+            "onAutoForward": "notify"
+        }
+    },
+    "customizations": {
+        "prompt": "Frankend PHP",
+        "settings": {
+            "terminal.integrated.shell.linux": "/bin/zsh",
+            "php.validate.executablePath": "/usr/local/bin/php",
+            "editor.tabSize": 4
+        }
+    },
+    // "postCreateCommand": "sh .devcontainer/script-start.sh",
+    // "postStartCommand": "php artisan serve",
+    "postCreateCommand": "composer install --no-dev && composer require laravel/octane && php artisan octane:install --server=frankenphp",
+    "postStartCommand": "php artisan octane:start --server=frankenphp --port=9000 --workers=1 --host=0.0.0.0",
+    // "postCreateCommand": "composer install --no-dev --ignore-platform-req=ext-gd",
+    // "postStartCommand": "frankenphp php-server --root /var/www/html/public --listen 0.0.0.0:9000",
+}
